@@ -1,0 +1,75 @@
+local event = game.ReplicatedStorage:WaitForChild("BoulderEvent")
+
+local playerOnCooldown = {}
+
+local tween = game:GetService("TweenService")
+
+event.OnServerEvent:Connect(function(player, mouseCF)
+	
+	if playerOnCooldown[player] then return end
+
+	playerOnCooldown[player] = true
+
+	local hrp = player.Character:WaitForChild("HumanoidRootPart")
+
+	local startPos = hrp.Position + (hrp.CFrame.LookVector * 5) - Vector3.new(0, hrp.Size.Y * 1.5, 0)
+
+	local boulder = script:WaitForChild("Boulder"):Clone()
+
+	boulder.Size = Vector3.new(0, 0, 0)
+	boulder.Position = startPos
+	
+	boulder.Anchored = true
+	boulder.CanCollide = false
+
+	boulder.Parent = game.Workspace
+
+	local newPos = startPos + Vector3.new(0, 10, 0)
+	local newSize = Vector3.new(7, 7, 7)
+
+	local tweeninfo = TweenInfo.new(1, Enum.EasingStyle.Quint, Enum.EasingDirection.InOut)
+
+	local liftTween = tween:Create(boulder, tweeninfo, {Position = newPos, Size = newSize})
+	liftTween:Play()
+
+	liftTween.Completed:Wait()
+
+	local bv = Instance.new("BodyVelocity", boulder)
+	bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+
+	local bav = Instance.new("BodyAngularVelocity", boulder)
+	bav.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+
+	boulder.Anchored = false
+	boulder.CanCollide = true
+
+	boulder:SetNetworkOwner(player)
+	event:FireClient(player, boulder)
+
+	local hitCharacters = {}
+
+	boulder.Touched:Connect(function(hit)
+
+		bv:Destroy()
+		bav:Destroy()
+
+		boulder:SetNetworkOwner(nil)
+
+		if hit.Parent ~= player.Character then
+
+			if hit.Parent:FindFirstChild("Humanoid") and not hit.Character[hit.Parent] then
+
+				hitCharacters[hit.Parent] = true
+
+				hit.Parent.Humanoid:TakeDamage(50)
+			end
+		end
+	end)
+
+	game:GetService("Debris"):AddItem(boulder, 30)
+
+	wait(1)
+
+	playerOnCooldown[player] = nil
+end)
+

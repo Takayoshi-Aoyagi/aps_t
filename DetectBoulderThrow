@@ -1,0 +1,19 @@
+local event = game.ReplicatedStorage:WaitForChild("BoulderEvent")
+
+local mouse = game.Players.LocalPlayer:GetMouse()
+
+local uis = game:GetService("UserInputService")
+
+uis.InputBegan:Connect(function(input, processed)
+	if processed then return end
+	if input.KeyCode == Enum.KeyCode.E then
+		print("Fire!")
+		event:FireServer(mouse.Hit)
+	end
+end)
+
+event.OnClientEvent:Connect(function(boulder)
+	print('hoge')
+	boulder.BodyVelocity.Velocity = mouse.Hit.LookVector * 200
+	boulder.BodyAngularVelocity.AngularVelocity = mouse.Hit.LookVector * 50
+end) 
