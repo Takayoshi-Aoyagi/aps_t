@@ -1,0 +1,43 @@
+-- Place this file under ServerScriptService !
+
+local anime = function ()
+	local TweenService = game:GetService("TweenService")
+
+	local part = Instance.new("Part")
+	part.Position = Vector3.new(0, 10, 0)
+	part.Color = Color3.new(1, 0, 0)
+	part.Anchored = true
+	part.Parent = game.Workspace
+
+	local goal = {}
+	goal.Position = Vector3.new(10, 10, 0)
+	goal.Color = Color3.new(0, 1, 0)
+
+	local tweenInfo = TweenInfo.new(5)
+
+	local tween = TweenService:Create(part, tweenInfo, goal)
+
+	tween:Play()
+end
+
+
+
+--local part = Instance.new("Part")
+--part.Name = "JurassicPart"
+--part.Anchored = true
+--part.Shape = Enum.PartType.Ball
+--part.Color = Color3.new(1, 1, 1)
+--part.Parent = workspace -- Put the part into the Workspace
+
+
+
+local tbl = {"artista_ta"}
+game.Players.PlayerAdded:Connect(function (plr)
+	print(plr.Name)
+	plr.Chatted:Connect(function (msg)
+		print(msg)
+		if msg == "anime" then
+			anime()
+		end
+	end)
+end)
